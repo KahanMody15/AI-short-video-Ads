@@ -50,6 +50,7 @@ export const dummyGenerations = [
         isPublished: false,
         createdAt: '2023-03-15T00:00:00.000Z',
         updatedAt: '',
+         name: 'Trolly Bag',
     },
     {
         id: 'gen_2',
@@ -66,6 +67,7 @@ export const dummyGenerations = [
         isPublished: true,
         createdAt: '2023-03-16T00:00:00.000Z',
         updatedAt: '',
+         name: 'Trolly Bag',
     },
     {
         id: 'gen_3',
@@ -82,6 +84,7 @@ export const dummyGenerations = [
         isPublished: false,
         createdAt: '2023-03-17T00:00:00.000Z',
         updatedAt: '',
+         name: 'Trolly Bag',
     },
     {
         id: 'gen_4',
@@ -98,6 +101,7 @@ export const dummyGenerations = [
         isPublished: false,
         createdAt: '2023-03-18T00:00:00.000Z',
         updatedAt: '',
+         name: 'Trolly Bag',
     },
     {
         id: 'gen_5',
@@ -114,6 +118,7 @@ export const dummyGenerations = [
         isPublished: false,
         createdAt: '2023-03-17T00:00:00.000Z',
         updatedAt: '',
+         name: 'Trolly Bag',
     },
     {
         id: 'gen_6',
@@ -130,6 +135,7 @@ export const dummyGenerations = [
         isPublished: false,
         createdAt: '2023-03-18T00:00:00.000Z',
         updatedAt: '',
+         name: 'Trolly Bag',
     },
     {
         id: 'gen_7',
@@ -146,6 +152,7 @@ export const dummyGenerations = [
         isPublished: false,
         createdAt: '2023-03-17T00:00:00.000Z',
         updatedAt: '',
+         name: 'Trolly Bag',
     },
     {
         id: 'gen_8',
@@ -162,5 +169,6 @@ export const dummyGenerations = [
         isPublished: false,
         createdAt: '2023-03-18T00:00:00.000Z',
         updatedAt: '',
+         name: 'Trolly Bag',
     },
 ];
