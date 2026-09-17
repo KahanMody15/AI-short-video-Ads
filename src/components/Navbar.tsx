@@ -10,7 +10,9 @@ export default function Navbar() {
 
     const navLinks = [
         { name: 'Home', href: '/#' },
+        { name: 'Showcase', href: '/#showcase-slider' },
         { name: 'Create', href: '/generate' },
+        { name: 'Location', href: '/#location-map' },
         { name: 'Community', href: '/community' },
         { name: 'Plans', href: '/plans' },
     ];

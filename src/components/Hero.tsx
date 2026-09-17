@@ -1,6 +1,7 @@
-import { ArrowRightIcon, PlayIcon, ZapIcon, CheckIcon } from 'lucide-react';
+import { ArrowRightIcon, PlayIcon, ZapIcon, CheckIcon, ChevronLeft, ChevronRight, X, Sparkles } from 'lucide-react';
 import { PrimaryButton, GhostButton } from './Buttons';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 export default function Hero() {
 
@@ -10,13 +11,40 @@ export default function Hero() {
         'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&h=50&fit=crop'
     ];
 
-    const mainImageUrl = 'https://images.unsplash.com/photo-1576267423445-b2e0074d68a4?q=80&w=1600&auto=format&fit=crop';
-
-    const galleryStripImages = [
-        'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=100',
-        'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=100',
-        'https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=100',
+    const galleryImages = [
+        {
+            url: 'https://images.unsplash.com/photo-1576267423445-b2e0074d68a4?q=80&w=1600&auto=format&fit=crop',
+            title: 'Social Team Commercial',
+            tag: 'Social-ready • 9:16 & 16:9'
+        },
+        {
+            url: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1600&auto=format&fit=crop',
+            title: 'E-Commerce Product Showcase',
+            tag: 'Product Reel • 9:16'
+        },
+        {
+            url: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1600&auto=format&fit=crop',
+            title: 'Creative Studio Lifestyle',
+            tag: 'Commercial Ad • 16:9'
+        },
+        {
+            url: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=1600&auto=format&fit=crop',
+            title: 'Tech Modern Reveal',
+            tag: 'Viral Short • 9:16'
+        }
     ];
+
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [isAutoSlide, setIsAutoSlide] = useState(true);
+
+    useEffect(() => {
+        if (!isAutoSlide || isPreviewOpen) return;
+        const interval = setInterval(() => {
+            setActiveImageIndex((prev) => (prev + 1) % galleryImages.length);
+        }, 4000);
+        return () => clearInterval(interval);
+    }, [isAutoSlide, isPreviewOpen]);
 
     const trustedLogosText = [
         'Adobe',
@@ -82,14 +110,17 @@ export default function Hero() {
                                 viewport={{ once: true }}
                                 transition={{ type: "spring", stiffness: 250, damping: 70, mass: 1, delay: 0.3 }}
                             >
-                                <a href="/" className="w-full sm:w-auto">
+                                <a href="/generate" className="w-full sm:w-auto">
                                     <PrimaryButton className="max-sm:w-full py-3 px-7">
                                         Start generating 
                                         <ArrowRightIcon className="size-4" />
                                     </PrimaryButton>
                                 </a>
 
-                                <GhostButton className="max-sm:w-full max-sm:justify-center py-3 px-5">
+                                <GhostButton 
+                                    onClick={() => setIsPreviewOpen(true)}
+                                    className="max-sm:w-full max-sm:justify-center py-3 px-5 cursor-pointer"
+                                >
                                     <PlayIcon className="size-4" />
                                     Watch demo
                                 </GhostButton>
@@ -125,52 +156,103 @@ export default function Hero() {
                             </motion.div>
                         </div>
 
-                        {/* Right: modern mockup card */}
+                        {/* Right: Interactive mockup card with photo sliding */}
                         <motion.div className="mx-auto w-full max-w-lg"
                             initial={{ opacity: 0 }}
                             whileInView={{ opacity: 1 }}
                             viewport={{ once: true }}
                             transition={{ type: "spring", stiffness: 250, damping: 70, mass: 1, delay: 0.5 }}
                         >
-                            <motion.div className="rounded-3xl overflow-hidden border border-white/6 shadow-2xl bg-linear-to-b from-black/50 to-transparent">
-                                <div className="relative aspect-16/10 bg-gray-900">
-                                    <img
-                                        src={mainImageUrl}
-                                        alt="agency-work-preview"
-                                        className="w-full h-full object-cover object-center"
-                                    />
+                            <motion.div className="rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-linear-to-b from-black/80 to-gray-900 relative group">
+                                <div className="relative aspect-16/10 bg-gray-900 overflow-hidden">
+                                    <AnimatePresence mode="wait">
+                                        <motion.img
+                                            key={activeImageIndex}
+                                            src={galleryImages[activeImageIndex].url}
+                                            alt="agency-work-preview"
+                                            className="w-full h-full object-cover object-center"
+                                            initial={{ opacity: 0, scale: 1.05 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.95 }}
+                                            transition={{ duration: 0.4 }}
+                                        />
+                                    </AnimatePresence>
 
-                                    <div className="absolute left-4 top-4 px-3 py-1 rounded-full bg-black/15 backdrop-blur-sm text-xs">
-                                        Social-ready • 9:16 & 16:9
+                                    {/* Tag Badge */}
+                                    <div className="absolute left-4 top-4 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs border border-white/10 text-gray-200">
+                                        {galleryImages[activeImageIndex].tag}
                                     </div>
 
+                                    {/* Prev/Next Slide Arrows */}
+                                    <button 
+                                        onClick={() => {
+                                            setIsAutoSlide(false);
+                                            setActiveImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+                                        }}
+                                        className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"
+                                        aria-label="Previous image"
+                                    >
+                                        <ChevronLeft className="size-4" />
+                                    </button>
+
+                                    <button 
+                                        onClick={() => {
+                                            setIsAutoSlide(false);
+                                            setActiveImageIndex((prev) => (prev + 1) % galleryImages.length);
+                                        }}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"
+                                        aria-label="Next image"
+                                    >
+                                        <ChevronRight className="size-4" />
+                                    </button>
+
+                                    {/* Interactive Preview Button */}
                                     <div className="absolute right-4 bottom-4">
-                                        <button className="inline-flex items-center gap-2 rounded-full px-4 py-2 bg-white/6 backdrop-blur-sm hover:bg-white/10 transition focus:outline-none">
-                                            <PlayIcon className="size-4" />
-                                            <span className="text-xs">Preview</span>
+                                        <button 
+                                            onClick={() => setIsPreviewOpen(true)}
+                                            className="inline-flex items-center gap-2 rounded-full px-4 py-2 bg-indigo-600/90 hover:bg-indigo-500 backdrop-blur-md text-white shadow-lg shadow-indigo-600/30 transition hover:scale-105 cursor-pointer"
+                                        >
+                                            <PlayIcon className="size-4 fill-white" />
+                                            <span className="text-xs font-semibold">Preview</span>
                                         </button>
                                     </div>
                                 </div>
                             </motion.div>
 
+                            {/* Interactive Gallery Thumbnails Bar */}
                             <div className="mt-4 flex gap-3 items-center justify-start">
-                                {galleryStripImages.map((src, i) => (
-                                    <motion.div
-                                        key={i}
-                                        initial={{ y: 20, opacity: 0 }}
-                                        whileInView={{ y: 0, opacity: 1 }}
-                                        viewport={{ once: true }}
-                                        transition={{ type: "spring", stiffness: 250, damping: 70, mass: 1, delay: 0.1 + i * 0.1 }}
-                                        className="w-14 h-10 rounded-lg overflow-hidden border border-white/6"
-                                    >
-                                        <img
-                                            src={src}
-                                            alt="project-thumbnail"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </motion.div>
-                                ))}
-                                <motion.div className="text-sm text-gray-400 ml-2 flex items-center gap-2"
+                                {galleryImages.slice(1).map((item, idx) => {
+                                    const actualIndex = idx + 1;
+                                    const isSelected = activeImageIndex === actualIndex;
+                                    return (
+                                        <motion.button
+                                            key={idx}
+                                            onClick={() => {
+                                                setIsAutoSlide(false);
+                                                setActiveImageIndex(actualIndex);
+                                            }}
+                                            initial={{ y: 20, opacity: 0 }}
+                                            whileInView={{ y: 0, opacity: 1 }}
+                                            viewport={{ once: true }}
+                                            transition={{ type: "spring", stiffness: 250, damping: 70, mass: 1, delay: 0.1 + idx * 0.1 }}
+                                            className={`w-14 h-10 rounded-lg overflow-hidden border transition-all duration-300 cursor-pointer ${
+                                                isSelected 
+                                                    ? "border-indigo-500 scale-110 shadow-md shadow-indigo-500/50 ring-2 ring-indigo-500/40" 
+                                                    : "border-white/10 opacity-70 hover:opacity-100"
+                                            }`}
+                                        >
+                                            <img
+                                                src={item.url}
+                                                alt="project-thumbnail"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </motion.button>
+                                    );
+                                })}
+
+                                <motion.a 
+                                    href="#showcase-slider"
+                                    className="text-sm text-gray-400 ml-2 flex items-center gap-2 hover:text-indigo-300 transition"
                                     initial={{ y: 60, opacity: 0 }}
                                     whileInView={{ y: 0, opacity: 1 }}
                                     viewport={{ once: true }}
@@ -178,16 +260,68 @@ export default function Hero() {
                                 >
                                     <div className="relative flex h-3.5 w-3.5 items-center justify-center">
                                         <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping duration-300" />
-
                                         <span className="relative inline-flex size-2 rounded-full bg-green-600" />
                                     </div>
-                                     +20 more
-                                </motion.div>
+                                    +20 more
+                                </motion.a>
                             </div>
                         </motion.div>
                     </div>
                 </div>
             </section>
+
+            {/* Video Modal Preview */}
+            <AnimatePresence>
+                {isPreviewOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+                        onClick={() => setIsPreviewOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="relative w-full max-w-3xl bg-gray-900 border border-white/20 rounded-3xl overflow-hidden shadow-2xl"
+                        >
+                            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black/60">
+                                <div className="flex items-center gap-2">
+                                    <Sparkles className="size-4 text-indigo-400" />
+                                    <h4 className="text-white font-semibold text-sm">
+                                        {galleryImages[activeImageIndex].title} - AI Video Preview
+                                    </h4>
+                                </div>
+                                <button
+                                    onClick={() => setIsPreviewOpen(false)}
+                                    className="p-1 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition"
+                                >
+                                    <X className="size-5" />
+                                </button>
+                            </div>
+
+                            <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
+                                <img
+                                    src={galleryImages[activeImageIndex].url}
+                                    alt="Video Preview"
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-6">
+                                    <div className="w-16 h-16 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-xl shadow-indigo-600/50 mb-4 animate-pulse">
+                                        <PlayIcon className="size-8 fill-white ml-1" />
+                                    </div>
+                                    <h5 className="text-white font-bold text-lg mb-1">{galleryImages[activeImageIndex].title}</h5>
+                                    <p className="text-gray-300 text-xs sm:text-sm max-w-md">
+                                        Instant AI video generation demo.
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* LOGO MARQUEE */}
             <motion.section className="border-y border-white/6 bg-white/1 max-md:mt-10"
@@ -213,4 +347,4 @@ export default function Hero() {
             </motion.section>
         </>
     );
-};
+};
