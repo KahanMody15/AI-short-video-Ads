@@ -1,12 +1,16 @@
-import { MenuIcon, XIcon } from 'lucide-react';
+import { MenuIcon, XIcon, LogOutIcon } from 'lucide-react';
 import { PrimaryButton } from './Buttons';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import {Link} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { assets } from '../assets/assets';
+import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
+    const { user } = useAuth();
+    const navigate = useNavigate();
 
     const navLinks = [
         { name: 'Home', href: '/#' },
@@ -16,6 +20,12 @@ export default function Navbar() {
         { name: 'Community', href: '/community' },
         { name: 'Plans', href: '/plans' },
     ];
+
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+        navigate('/');
+        setIsOpen(false);
+    }
 
     return (
         <motion.nav className='fixed top-5 left-0 right-0 z-50 px-4'
@@ -35,13 +45,28 @@ export default function Navbar() {
                             {link.name}
                         </Link>
                     ))}
+                    {user && (
+                         <Link onClick={()=> scrollTo(0, 0)} to='/my-generations' className="hover:text-white transition">
+                         My Generations
+                     </Link>
+                    )}
                 </div>
 
                 <div className='hidden md:flex items-center gap-3'>
-                    <button className='text-sm font-medium text-gray-300 hover:text-white transition max-sm:hidden'>
-                        Sign in
-                    </button>
-                    <PrimaryButton className='max-sm:text-xs hidden sm:inline-block'>Get Started</PrimaryButton>
+                    {user ? (
+                         <button onClick={handleSignOut} className='flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-white transition max-sm:hidden'>
+                             <LogOutIcon className='size-4'/> Sign out
+                         </button>
+                    ) : (
+                        <>
+                        <Link to='/auth' className='text-sm font-medium text-gray-300 hover:text-white transition max-sm:hidden'>
+                            Sign in
+                        </Link>
+                        <Link to='/auth'>
+                            <PrimaryButton className='max-sm:text-xs hidden sm:inline-block'>Get Started</PrimaryButton>
+                        </Link>
+                        </>
+                    )}
                 </div>
 
                 <button onClick={() => setIsOpen(!isOpen)} className='md:hidden'>
@@ -54,15 +79,31 @@ export default function Navbar() {
                         {link.name}
                     </a>
                 ))}
+                
+                {user && (
+                     <Link to='/my-generations' onClick={() => setIsOpen(false)}>
+                     My Generations
+                 </Link>
+                )}
 
-                <button onClick={() => setIsOpen(false)} className='font-medium text-gray-300 hover:text-white transition'>
-                    Sign in
-                </button>
-                <PrimaryButton onClick={() => setIsOpen(false)}>Get Started</PrimaryButton>
+                {user ? (
+                     <button onClick={handleSignOut} className='font-medium text-red-400 hover:text-red-300 transition'>
+                     Sign out
+                 </button>
+                ) : (
+                    <>
+                    <Link to='/auth' onClick={() => setIsOpen(false)} className='font-medium text-gray-300 hover:text-white transition'>
+                        Sign in
+                    </Link>
+                    <Link to='/auth' onClick={() => setIsOpen(false)}>
+                        <PrimaryButton>Get Started</PrimaryButton>
+                    </Link>
+                    </>
+                )}
 
                 <button
                     onClick={() => setIsOpen(false)}
-                    className="rounded-md bg-white p-2 text-gray-800 ring-white active:ring-2"
+                    className="rounded-md bg-white p-2 text-gray-800 ring-white active:ring-2 mt-4"
                 >
                     <XIcon />
                 </button>

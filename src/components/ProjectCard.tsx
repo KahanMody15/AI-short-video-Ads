@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Project } from "../types";
 import { EllipsisIcon, LoaderIcon } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 const ProjectCard = ({
   gen,
@@ -101,8 +102,16 @@ const ProjectCard = ({
                   </li>
 
                   <li
-                    className="px-3 py-2 hover:bg-white/10 cursor-pointer"
-                    onClick={() => setMenuOpen(false)}
+                    className="px-3 py-2 hover:bg-white/10 cursor-pointer text-red-400"
+                    onClick={async () => {
+                        try {
+                          await supabase.from('projects').delete().eq('id', gen.id);
+                          setGenerations((prev) => prev.filter((p) => p.id !== gen.id));
+                        } catch(err) {
+                          console.error('Failed to delete project', err);
+                        }
+                        setMenuOpen(false);
+                    }}
                   >
                     Delete
                   </li>

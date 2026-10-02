@@ -10,15 +10,18 @@ import MyGenerations from './pages/MyGenerations';
 import Community from './pages/Community';
 import Plans from './pages/Plans';
 import Loading from './pages/Loading';
+import Auth from './pages/Auth';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
 	return (
-		<>
+		<AuthProvider>
 			<SoftBackdrop />
 			<LenisScroll />
 			<Navbar />
             <Routes>
 				<Route path='/' element = {<Home />} />
+				<Route path='/auth' element = {<Auth />} />
 				<Route path='/generate' element = {<Generator />} />
 				<Route path='/result/:projectId' element = {<Result />} />
 				<Route path='/my-generations' element = {<MyGenerations />} />
@@ -26,11 +29,8 @@ function App() {
 				<Route path='/plans' element = {<Plans />} />
 				<Route path='/loading' element = {<Loading />} />
 			</Routes>
-			
-				
-			
 			<Footer />
-		</>
+		</AuthProvider>
 	);
 }
 export default App;

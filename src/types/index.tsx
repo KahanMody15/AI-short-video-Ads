@@ -4,7 +4,7 @@ export interface UploadZoneProps {
     label: string;
     file: File | null;
     onClear: ()=>void;
-    onchange: (e: React.ChangeEvent<HTMLInputElement>)=> void;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>)=> void;
 }
 
 export interface User{

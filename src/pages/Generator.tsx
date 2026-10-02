@@ -3,6 +3,9 @@ import Title from "../components/Title"
 import UploadZone from "../components/UploadZone"
 import { Loader2Icon, RectangleHorizontalIcon, RectangleVerticalIcon, Wand2Icon } from "lucide-react"
 import { PrimaryButton } from "../components/Buttons"
+import { supabase } from "../lib/supabase"
+import { useAuth } from "../contexts/AuthContext"
+import { useNavigate } from "react-router-dom"
 
 
 const Generator = () => {
@@ -15,6 +18,8 @@ const Generator = () => {
   const [modelImage, setModelImage] = useState<File | null>(null)
   const [userPrompt, setUserPrompt] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'product' | 'model')=> {
     if(e.target.files && e.target.files[0]) {
@@ -25,11 +30,55 @@ const Generator = () => {
 
   const handleGenerate = async (e: React.FormEvent<HTMLFormElement>)=> {
     e.preventDefault();
+    if (!user) {
+        alert("Please sign in to generate images.");
+        navigate('/auth');
+        return;
+    }
+    if (!productImage || !modelImage) {
+        alert("Please upload both product and model images.");
+        return;
+    }
+
+    setIsGenerating(true);
+    try {
+        const productPath = `${user.id}/${Date.now()}_product_${productImage.name}`;
+        const modelPath = `${user.id}/${Date.now()}_model_${modelImage.name}`;
+
+        const { error: productError } = await supabase.storage.from('project-images').upload(productPath, productImage);
+        if (productError) throw productError;
+
+        const { error: modelError } = await supabase.storage.from('project-images').upload(modelPath, modelImage);
+        if (modelError) throw modelError;
+
+        const productUrl = supabase.storage.from('project-images').getPublicUrl(productPath).data.publicUrl;
+        const modelUrl = supabase.storage.from('project-images').getPublicUrl(modelPath).data.publicUrl;
+
+        const { error: dbError } = await supabase.from('projects').insert({
+            name,
+            user_id: user.id,
+            product_name: productName,
+            product_description: productDescription,
+            aspect_ratio: aspectRatio,
+            user_prompt: userPrompt,
+            uploaded_images: [productUrl, modelUrl],
+            is_generating: true,
+        });
+
+        if (dbError) throw dbError;
+
+        navigate('/my-generations');
+    } catch(err) {
+        console.error("Failed to start generation", err);
+        alert("Something went wrong during generation setup.");
+    } finally {
+        setIsGenerating(false);
+    }
   }
   return (
     <div className='min-h-screen text-white p-6 md:p-12 mt-28'>
       <form onSubmit={handleGenerate} className='max-w-4xl mx-auto mb-40'>
-        <Title heading='Create In-Context Image' description='Upload your model and product images to generate stunning UGC, short-form videos and social media posts'/>
+        <Title heading='Create AI Short Video' description='Upload your model and product images to generate stunning UGC, short-form videos and social media posts'/>
         <div className='flex gap-20 max-sm:flex-col items-start justify-between'>
           <div className='flex flex-col w-full sm:max-w-60 gap-8 mt-8 mb-12'>
             <UploadZone label="Product Image" file={productImage} onClear={()=>setProductImage(null)} onChange={(e)=>handleFileChange(e, 'product')}/>
@@ -69,7 +118,7 @@ const Generator = () => {
                 </>
               ) : (
                 <>
-                <Wand2Icon className='size-5'/> Generate Image
+                <Wand2Icon className='size-5'/> Generate Video
                 </>
               )}
             </PrimaryButton>

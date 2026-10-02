@@ -1,25 +1,59 @@
 import { useEffect, useState } from "react";
 import type { Project } from "../types";
-import { dummyGenerations } from "../assets/assets";
 import { Loader2Icon } from "lucide-react";
 import ProjectCard from "../components/ProjectCard";
-import { div } from "framer-motion/client";
 import { PrimaryButton } from "../components/Buttons";
+import { supabase } from "../lib/supabase";
+import { useAuth } from "../contexts/AuthContext";
 
 const MyGenerations = () => {
   const [generations, setGenerations] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   const fetchMyGenerations = async () => {
-    setTimeout(() => {
-      setGenerations(dummyGenerations);
-      setLoading(false);
-    }, 3000);
+    if (!user) return;
+    
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Error fetching projects:", error);
+    } else if (data) {
+      const formattedData: Project[] = data.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        userId: item.user_id,
+        productName: item.product_name,
+        productDescription: item.product_description,
+        userPrompt: item.user_prompt,
+        aspectRatio: item.aspect_ratio,
+        targetLength: item.target_length,
+        generatedImage: item.generated_image,
+        generatedVideo: item.generated_video,
+        isGenerating: item.is_generating,
+        isPublished: item.is_published,
+        error: item.error,
+        createdAt: item.created_at,
+        updatedAt: item.updated_at,
+        uploadedImages: item.uploaded_images || [],
+      }));
+      setGenerations(formattedData);
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
-    fetchMyGenerations();
-  }, []);
+    if (user) {
+      fetchMyGenerations();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
 
   return loading? (
     <div className="flex items-center justify-center min-h-screen">
